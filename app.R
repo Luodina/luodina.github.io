@@ -47,7 +47,7 @@ ui <- dashboardPage(
                                                     "Select Item to Display",
                                                     unique(listings$neighbourhood))
                             ),
-                        box(width=6, sliderInput("sliderPrice", "Slider:", min(listings$price),max(listings$price),value =c(100, 500)))
+                        box(width=6, sliderInput("sliderPrice", "Slider:", min(listings$price),max(listings$price),value =c(min(listings$price), max(listings$price))))
                     ),
                     fluidRow(
                         box(width=6,  selectizeInput("selected2",
@@ -75,6 +75,51 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
+    
+     observeEvent(input$selected2,({
+        priceSlider=unique(listings[listings$neighbourhood==input$selected1&
+                                        listings$room_type==input$selected2  
+                                    ,'price'])
+        print('priceSlider')
+        min<-min(priceSlider)
+        max<-max(priceSlider)
+        print(min)
+        print(max)
+        print('priceSlider update')
+        updateSliderInput(
+            session,'sliderPrice',
+            value=c(min, max),
+            min = min,
+            max = max
+        )
+        })
+    )
+    
+    observe({
+        selected2=unique(listings[listings$neighbourhood==input$selected1,'room_type'])
+        print(selected2[1])
+        updateSelectizeInput(
+            session,'selected2',
+            choices = selected2,
+            selected = selected2[1]
+        )
+        # priceSlider=unique(listings[listings$neighbourhood==input$selected1&
+        #                             listings$room_type==input$selected2  
+        #                           ,'price'])
+        # print('priceSlider')
+        # min<-min(priceSlider)
+        # max<-max(priceSlider)
+        # print(min)
+        # print(max)
+        # print('priceSlider update')
+        # updateSliderInput(
+        #     session,'sliderPrice',
+        #     value=c(min, max),
+        #     min = min,
+        #     max = max
+        # )
+    })
+    
     listingHK <- reactive({
         selNeighbourhood = input$selected1
         selRoomType = input$selected2
