@@ -30,34 +30,33 @@ ui <- dashboardPage(
                         box(width=6, plotOutput("bar2"))
                     ),
                     fluidRow(
-                        box(width=6, plotOutput("plot1")),
                         box(width=6, sliderInput("slider", "Slider:", 1,100,1))
                     )
             ),
             
             # Second tab content
             tabItem(tabName = "map",
-                fluidPage(
-                    fluidRow(
-                        box(width=12,height = 500, leafletOutput("mymap")),
-                        box(width=12, textOutput("text1")
-                    ),
-                    fluidRow(
-                        box(width=6, selectizeInput("selected1",
-                                                    "Select Item to Display",
-                                                    unique(listings$neighbourhood))
+                    fluidPage(
+                        fluidRow(
+                            box(width=12,height = 500, leafletOutput("mymap")),
+                            box(width=12, textOutput("text1")
                             ),
-                        box(width=6, sliderInput("sliderPrice", "Slider:", min(listings$price),max(listings$price),value =c(min(listings$price), max(listings$price))))
-                    ),
-                    fluidRow(
-                        box(width=6,  selectizeInput("selected2",
-                                                     "Select Item to Display",
-                                                     unique(listings$room_type))
+                            fluidRow(
+                                box(width=6, selectizeInput("selected1",
+                                                            "Select Item to Display",
+                                                            unique(listings$neighbourhood))
+                                ),
+                                box(width=6, sliderInput("sliderPrice", "Slider:", min(listings$price),max(listings$price),value =c(min(listings$price), max(listings$price))))
+                            ),
+                            fluidRow(
+                                box(width=6,  selectizeInput("selected2",
+                                                             "Select Item to Display",
+                                                             unique(listings$room_type))
+                                )
                             )
+                            
                         )
-                        
                     )
-                )
             ),
             
             # Third tab content
@@ -74,9 +73,9 @@ ui <- dashboardPage(
     )
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
     
-     observeEvent(input$selected2,({
+    observeEvent(input$selected2,({
         priceSlider=unique(listings[listings$neighbourhood==input$selected1&
                                         listings$room_type==input$selected2  
                                     ,'price'])
@@ -92,7 +91,7 @@ server <- function(input, output) {
             min = min,
             max = max
         )
-        })
+    })
     )
     
     observe({
@@ -145,10 +144,7 @@ server <- function(input, output) {
         }    
     })
     
-    output$plot1 <- renderPlot({
-        data <- histdata[seq_len(input$slider)]
-        hist(data)
-    })
+
     
     output$text1 <-renderText({
         num <- nrow(listingHK())
@@ -173,8 +169,8 @@ server <- function(input, output) {
                                                         scrollX = TRUE,
                                                         class = 'cell-border stripe'
                                                     )
-                                                    )
-                                        })
+    )
+    })
 }
 
 shinyApp(ui, server)
